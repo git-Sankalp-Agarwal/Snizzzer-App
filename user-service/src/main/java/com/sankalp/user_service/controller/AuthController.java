@@ -24,12 +24,12 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<UserDto> signUp(@RequestBody SignupRequestDto signupRequestDto) {
         UserDto userDto = authService.signUp(signupRequestDto);
-        return new ResponseEntity<>(userDto, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
         String token = authService.login(loginRequestDto);
-        return new ResponseEntity<>(new LoginResponseDto(token), HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body(new LoginResponseDto(token));
     }
 }

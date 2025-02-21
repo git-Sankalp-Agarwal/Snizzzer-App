@@ -1,0 +1,17 @@
+#gateway config
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/v1/users/**
+          filters:
+            - StripPrefix=2
+        - id: tweets-service
+          uri: lb://TWEET-SERVICE
+          predicates:
+            - Path=/api/v1/tweets/**
+          filters:
+            - StripPrefix=2
