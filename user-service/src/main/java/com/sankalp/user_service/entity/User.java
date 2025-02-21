@@ -1,4 +1,4 @@
-package com.sankalp.user_service.entities;
+package com.sankalp.user_service.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
