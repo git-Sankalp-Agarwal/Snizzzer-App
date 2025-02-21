@@ -1,6 +1,5 @@
 package com.sankalp.tweet_service.services.impl;
 
-import ch.qos.logback.core.read.ListAppender;
 import com.sankalp.tweet_service.dto.TweetCreateRequestDto;
 import com.sankalp.tweet_service.dto.TweetDto;
 import com.sankalp.tweet_service.entity.Tweet;
@@ -49,6 +48,17 @@ public class TweetServiceImpl implements TweetService {
     public Tweet getTweetInternally(Long tweetId) {
         return tweetRepository.findById(tweetId)
                               .orElseThrow(() -> new ResourceNotFoundException("Tweet not found with id::: " + tweetId));
+    }
+
+    @Override
+    public void updateTweetLikeCount(Tweet tweet, String method) {
+        if(method.equals("like")){
+            tweet.setLikeCount(tweet.getLikeCount()+1);
+        }
+        else{
+            tweet.setLikeCount(tweet.getLikeCount()-1);
+        }
+        tweetRepository.save(tweet);
     }
 
     @Override

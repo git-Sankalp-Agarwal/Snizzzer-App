@@ -4,10 +4,11 @@ import com.sankalp.tweet_service.entity.Tweet;
 import com.sankalp.tweet_service.entity.TweetLike;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface TweetLikeRepository extends JpaRepository<TweetLike, Long> {
 
-    public boolean existsByUserIdAndTweet(Long userId, Tweet tweet);
+    Optional<TweetLike> findByUserIdAndTweet(Long userId, Tweet tweet);
 
-    public void deleteByUserIdAndTweet(Long userId, Tweet tweet);
 
 }

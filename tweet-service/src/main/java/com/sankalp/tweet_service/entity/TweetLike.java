@@ -1,10 +1,7 @@
 package com.sankalp.tweet_service.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -15,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Builder
 @Table(name = "tweetLikes")
 public class TweetLike {
 
@@ -28,8 +26,6 @@ public class TweetLike {
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Tweet tweet;
-
-    private boolean isTweetLiked;
 
     @CreationTimestamp
     private LocalDateTime tweetLikeTime;

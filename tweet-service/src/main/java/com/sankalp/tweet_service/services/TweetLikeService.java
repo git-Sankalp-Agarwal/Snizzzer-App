@@ -4,4 +4,7 @@ import org.springframework.stereotype.Service;
 
 
 public interface TweetLikeService {
+
+    void updateTweetLike(Long tweetId);
+
 }
