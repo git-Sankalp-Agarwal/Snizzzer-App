@@ -15,3 +15,9 @@ spring:
             - Path=/api/v1/tweets/**
           filters:
             - StripPrefix=2
+        - id: follow-service
+          uri: lb://FOLLOW-SERVICE
+          predicates:
+            - Path=/api/v1/follows/**
+          filters:
+            - StripPrefix=2
