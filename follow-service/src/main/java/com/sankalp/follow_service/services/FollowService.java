@@ -12,4 +12,6 @@ public interface FollowService {
     List<Person> getFirstFollowers(Long userId);
 
     void createPerson(PersonCreateDto personCreateDto);
+
+    void sendNotificationToFollowers();
 }

@@ -30,6 +30,13 @@ public class FollowersController {
         return followService.getFirstFollowers(userId);
     }
 
+    @GetMapping("/sendNotificationToFollowers")
+    public void sendNotificationToFollowers(){
+        return followService.sendNotificationToFollowers();
+    }
+
+
+
     @PostMapping("/createPerson")
     public void createPerson(@RequestBody PersonCreateDto personCreateDto){
 

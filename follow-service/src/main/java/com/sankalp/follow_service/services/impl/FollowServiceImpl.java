@@ -1,5 +1,6 @@
 package com.sankalp.follow_service.services.impl;
 
+import com.sankalp.follow_service.auth.UserContextHolder;
 import com.sankalp.follow_service.dto.PersonCreateDto;
 import com.sankalp.follow_service.entity.Person;
 import com.sankalp.follow_service.repository.PersonRepository;
@@ -35,5 +36,13 @@ public class FollowServiceImpl implements FollowService {
                               .name(personCreateDto.getName())
                               .build();
         personRepository.save(person);
+    }
+
+    @Override
+    public void sendNotificationToFollowers() {
+        Long userId = UserContextHolder.getCurrentUserId();
+
+        List<Person> followers = personRepository.findFirstDegreeFollowers(userId);
+
     }
 }
