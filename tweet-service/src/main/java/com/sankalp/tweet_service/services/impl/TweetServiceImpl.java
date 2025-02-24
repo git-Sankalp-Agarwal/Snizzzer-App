@@ -1,5 +1,6 @@
 package com.sankalp.tweet_service.services.impl;
 
+import com.sankalp.tweet_service.auth.UserContextHolder;
 import com.sankalp.tweet_service.clients.FollowersClient;
 import com.sankalp.tweet_service.dto.PersonDto;
 import com.sankalp.tweet_service.dto.TweetCreateRequestDto;
@@ -26,21 +27,23 @@ public class TweetServiceImpl implements TweetService {
     private final ModelMapper mapper;
     private final FollowersClient followersClient;
     @Override
-    public TweetDto createTweet(TweetCreateRequestDto tweetCreateRequestDto, Long userId) {
-        Tweet tweet = mapper.map(tweetCreateRequestDto, Tweet.class);
-        tweet.setId(null);
-        tweet.setReplyTweet(false);
-        tweet.setLikeCount(0L);
-        tweet.setRepliesCount(0L);
-        tweet.setUserId(userId);
-        tweet.setRetweetCount(0L);
-        Tweet savedTweet = tweetRepository.save(tweet);
+    public TweetDto createTweet(TweetCreateRequestDto tweetCreateRequestDto) {
 
-        List<PersonDto> person =  followersClient.getFollowers(userId);
+            Long userId = UserContextHolder.getCurrentUserId();
+            Tweet tweet = mapper.map(tweetCreateRequestDto, Tweet.class);
+            tweet.setId(null);
+            tweet.setReplyTweet(false);
+            tweet.setLikeCount(0L);
+            tweet.setRepliesCount(0L);
+            tweet.setUserId(userId);
+            tweet.setRetweetCount(0L);
+            Tweet savedTweet = tweetRepository.save(tweet);
 
-        log.info("person list");
+            List<PersonDto> person =  followersClient.getFollowers(userId);
 
-        return mapper.map(savedTweet, TweetDto.class);
+            log.info("person list");
+
+            return mapper.map(savedTweet, TweetDto.class);
     }
 
     @Override

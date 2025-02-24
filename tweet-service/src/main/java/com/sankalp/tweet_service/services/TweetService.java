@@ -8,7 +8,7 @@ import java.util.List;
 
 
 public interface TweetService {
-    TweetDto createTweet(TweetCreateRequestDto tweetCreateRequestDto, Long userId);
+    TweetDto createTweet(TweetCreateRequestDto tweetCreateRequestDto);
 
     TweetDto getTweet(Long tweetId);
 

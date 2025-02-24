@@ -18,8 +18,8 @@ public class TweetController {
     private final TweetService tweetService;
 
     @PostMapping("/createTweet")
-    public ResponseEntity<TweetDto> createNewTweet(@RequestBody TweetCreateRequestDto tweetCreateRequestDto, @RequestHeader(value = "X-User-Id", required = false) Long userId){
-        return ResponseEntity.ok(tweetService.createTweet(tweetCreateRequestDto, userId));
+    public ResponseEntity<TweetDto> createNewTweet(@RequestBody TweetCreateRequestDto tweetCreateRequestDto){
+        return ResponseEntity.ok(tweetService.createTweet(tweetCreateRequestDto));
     }
 
     @GetMapping("/fetchTweet/{tweetId}")
