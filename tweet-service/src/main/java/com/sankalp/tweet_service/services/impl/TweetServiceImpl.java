@@ -1,5 +1,7 @@
 package com.sankalp.tweet_service.services.impl;
 
+import com.sankalp.tweet_service.clients.FollowersClient;
+import com.sankalp.tweet_service.dto.PersonDto;
 import com.sankalp.tweet_service.dto.TweetCreateRequestDto;
 import com.sankalp.tweet_service.dto.TweetDto;
 import com.sankalp.tweet_service.entity.Tweet;
@@ -7,6 +9,7 @@ import com.sankalp.tweet_service.exceptions.ResourceNotFoundException;
 import com.sankalp.tweet_service.repository.TweetRepository;
 import com.sankalp.tweet_service.services.TweetService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -16,21 +19,26 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TweetServiceImpl implements TweetService {
 
     private final TweetRepository tweetRepository;
     private final ModelMapper mapper;
-
+    private final FollowersClient followersClient;
     @Override
-    public TweetDto createTweet(TweetCreateRequestDto tweetCreateRequestDto) {
+    public TweetDto createTweet(TweetCreateRequestDto tweetCreateRequestDto, Long userId) {
         Tweet tweet = mapper.map(tweetCreateRequestDto, Tweet.class);
         tweet.setId(null);
         tweet.setReplyTweet(false);
         tweet.setLikeCount(0L);
         tweet.setRepliesCount(0L);
-        tweet.setUserId(1L);
+        tweet.setUserId(userId);
         tweet.setRetweetCount(0L);
         Tweet savedTweet = tweetRepository.save(tweet);
+
+        List<PersonDto> person =  followersClient.getFollowers(userId);
+
+        log.info("person list");
 
         return mapper.map(savedTweet, TweetDto.class);
     }
