@@ -7,18 +7,18 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Setter
-@Document(collection = "notifications")
+@Document(collection = "Follow_Notifications")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Notification {
+public class FollowNotifications {
 
     @Id
     private String id;
 
-    private Long userId;
+    private Long senderId;
 
-    private Long tweetId;
+    private Long receiverId;
 
     private String message;
 

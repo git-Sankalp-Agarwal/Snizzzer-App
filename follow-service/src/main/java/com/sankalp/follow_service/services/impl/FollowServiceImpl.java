@@ -4,20 +4,27 @@ import com.sankalp.follow_service.auth.UserContextHolder;
 import com.sankalp.follow_service.dto.PersonCreateDto;
 import com.sankalp.follow_service.dto.PersonDto;
 import com.sankalp.follow_service.entity.Person;
+import com.sankalp.follow_service.event.UserFollowedEvent;
 import com.sankalp.follow_service.repository.PersonRepository;
 import com.sankalp.follow_service.services.FollowService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FollowServiceImpl implements FollowService {
 
     private final PersonRepository personRepository;
     private final ModelMapper mapper;
+    private final KafkaTemplate<Long, UserFollowedEvent> userFollowedEventTemplate;
+
 
     @Override
     public Person getPersonByName(String name) {
@@ -39,13 +46,47 @@ public class FollowServiceImpl implements FollowService {
         personRepository.save(person);
     }
 
+    @Override
+    @Transactional
+    public void followPerson(Long receiverId) {
+
+        Long senderId = UserContextHolder.getCurrentUserId();
+        if (senderId.equals(receiverId)) {
+            throw new RuntimeException("Cannot follow yourself!!!, both sender and receiver are same");
+        }
+        boolean alreadyFollower = personRepository.checkIfAlreadyFollows(senderId, receiverId);
+
+        if (alreadyFollower) {
+            startUnfollowingUser(senderId, receiverId);
+            return;
+        }
+        String senderName = UserContextHolder.getCurrentUserName();
+
+        personRepository.startFollowing(senderId, receiverId);
+
+        UserFollowedEvent userFollowedEvent = UserFollowedEvent.builder()
+                                                               .senderId(senderId)
+                                                               .senderName(senderName)
+                                                               .receiverId(receiverId)
+                                                               .build();
+
+        log.info("Sending notification to followee: {}", userFollowedEvent);
+
+        userFollowedEventTemplate.send("user-followed-topic", userFollowedEvent);
+    }
 
     @Override
     public List<PersonDto> getMyFollowers() {
         Long userId = UserContextHolder.getCurrentUserId();
 
         List<Person> userFollowers = personRepository.findFirstDegreeFollowers(userId);
-        return userFollowers.stream().map(userFollower -> mapper.map(userFollower, PersonDto.class))
-                                .toList();
+        return userFollowers.stream()
+                            .map(userFollower -> mapper.map(userFollower, PersonDto.class))
+                            .toList();
+    }
+
+
+    public void startUnfollowingUser(Long senderId, Long receiverId) {
+        personRepository.startUnFollowing(senderId, receiverId);
     }
 }

@@ -31,6 +31,11 @@ public class FollowersController {
         return followService.getUserFollowers(userId);
     }
 
+    @PostMapping("/startFollowing/{receiverId}")
+    public void startFollowing(@PathVariable Long receiverId){
+        followService.followPerson(receiverId);
+    }
+
     @GetMapping("/getMyFollowers")
     public List<PersonDto> getFollowers(){
         return followService.getMyFollowers();

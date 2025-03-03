@@ -14,5 +14,7 @@ public interface FollowService {
 
     void createPerson(PersonCreateDto personCreateDto);
 
+    void followPerson(Long receiverId);
+
     List<PersonDto> getMyFollowers();
 }

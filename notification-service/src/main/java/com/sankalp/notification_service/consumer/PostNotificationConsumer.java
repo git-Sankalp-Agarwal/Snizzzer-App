@@ -27,7 +27,7 @@ public class PostNotificationConsumer {
         List<PersonDto> followerList = followersClient.getFollowers(tweetCreatedEvent.getCreatorId(), tweetCreatedEvent.getCreatorName());
         String tweetCreateNotificationMessage = tweetCreatedEvent.getCreatorName() + " has tweeted!!!! Check it Out!! has id:: "+ tweetCreatedEvent.getCreatorId();
         for(PersonDto follower: followerList){
-            sendNotification.send(follower.getUserId(), tweetCreateNotificationMessage, NotificationType.TWEET_CREATE, tweetCreatedEvent.getTweetId());
+            sendNotification.sendTweetNotification(follower.getUserId(), tweetCreateNotificationMessage, NotificationType.TWEET_CREATE, tweetCreatedEvent.getTweetId());
         }
 
 
@@ -37,7 +37,7 @@ public class PostNotificationConsumer {
     public void handleTweetLikeEvent(TweetLikeEvent tweetLikeEvent){
         String tweetLikeNotificationMessage = tweetLikeEvent.getLikedByName() + " has liked your tweet!!!! has id:: "+ tweetLikeEvent.getLikedByUserId();
 
-            sendNotification.send(tweetLikeEvent.getCreatorId(), tweetLikeNotificationMessage, NotificationType.TWEET_LIKE, tweetLikeEvent.getTweetId());
+            sendNotification.sendTweetNotification(tweetLikeEvent.getCreatorId(), tweetLikeNotificationMessage, NotificationType.TWEET_LIKE, tweetLikeEvent.getTweetId());
 
     }
 

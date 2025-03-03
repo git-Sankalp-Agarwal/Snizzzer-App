@@ -22,8 +22,25 @@ public interface PersonRepository extends Neo4jRepository<Person, Long> {
             "RETURN personC")
     List<Person> findSecondDegreeFollowers(Long userId);
 
-    //REMOVE FOLLOW
-    //CHECK if already followers
-    //add feature for private account follow request
+    //query to start following
+    @Query("MATCH (a:Person{userId : $senderId}),(b:Person{userId : $receiverId}) " +
+            "MERGE (a)-[:follows]->(b)")
+    void startFollowing(Long senderId, Long receiverId);
+
+    //Query for remove follow
+    @Query("MATCH (a:Person{userId : $senderId}) -[r:follows]-> (b:Person{userId : $receiverId}) " +
+            "DELETE (r)")
+    void startUnFollowing(Long senderId, Long receiverId);
+
+    //query for checkIfAlreadyFollows
+    @Query("MATCH (a:Person{userId : $senderId}) -[r:follows]-> (b:Person{userId : $receiverId}) " +
+            "RETURN COUNT(r) > 0")
+    boolean checkIfAlreadyFollows(Long senderId, Long receiverId);
+
+    //TODO: add feature for private account follow request
+    //TODO: Check if already follow request exists for private accounts
+    //TODO: Send follow request to private account
+    //TODO: Reject request for private account
+    //TODO: Accept request for private account
 
 }
