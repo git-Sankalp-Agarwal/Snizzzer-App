@@ -20,6 +20,8 @@ public class TweetDto {
 
     private Long userId;
 
+    private String tweetCreatorName;
+
     private Long parentTweetId; // to check if it is a reply or original tweet
 
     private Long likeCount;

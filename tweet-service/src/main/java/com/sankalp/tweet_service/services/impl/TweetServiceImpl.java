@@ -2,16 +2,17 @@ package com.sankalp.tweet_service.services.impl;
 
 import com.sankalp.tweet_service.auth.UserContextHolder;
 import com.sankalp.tweet_service.clients.FollowersClient;
-import com.sankalp.tweet_service.dto.PersonDto;
 import com.sankalp.tweet_service.dto.TweetCreateRequestDto;
 import com.sankalp.tweet_service.dto.TweetDto;
 import com.sankalp.tweet_service.entity.Tweet;
+import com.sankalp.tweet_service.event.TweetCreatedEvent;
 import com.sankalp.tweet_service.exceptions.ResourceNotFoundException;
 import com.sankalp.tweet_service.repository.TweetRepository;
 import com.sankalp.tweet_service.services.TweetService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,24 +27,32 @@ public class TweetServiceImpl implements TweetService {
     private final TweetRepository tweetRepository;
     private final ModelMapper mapper;
     private final FollowersClient followersClient;
+    private final KafkaTemplate<Long, TweetCreatedEvent> postCreateKafkaTemplate;
+
     @Override
     public TweetDto createTweet(TweetCreateRequestDto tweetCreateRequestDto) {
 
-            Long userId = UserContextHolder.getCurrentUserId();
-            Tweet tweet = mapper.map(tweetCreateRequestDto, Tweet.class);
-            tweet.setId(null);
-            tweet.setReplyTweet(false);
-            tweet.setLikeCount(0L);
-            tweet.setRepliesCount(0L);
-            tweet.setUserId(userId);
-            tweet.setRetweetCount(0L);
-            Tweet savedTweet = tweetRepository.save(tweet);
+        Long userId = UserContextHolder.getCurrentUserId();
+        String userName = UserContextHolder.getCurrentUserName();
+        Tweet tweet = mapper.map(tweetCreateRequestDto, Tweet.class);
+        tweet.setId(null);
+        tweet.setReplyTweet(false);
+        tweet.setLikeCount(0L);
+        tweet.setTweetCreatorName(userName);
+        tweet.setRepliesCount(0L);
+        tweet.setUserId(userId);
+        tweet.setRetweetCount(0L);
+        Tweet savedTweet = tweetRepository.save(tweet);
 
-            List<PersonDto> person =  followersClient.getFollowers(userId);
+        TweetCreatedEvent tweetCreatedEvent = new TweetCreatedEvent();
+        tweetCreatedEvent.setCreatorId(userId);
+        tweetCreatedEvent.setCreatorName(userName);
+        tweetCreatedEvent.setTweetId(savedTweet.getId());
+        tweetCreatedEvent.setContent(tweetCreateRequestDto.getContent());
 
-            log.info("person list");
+        postCreateKafkaTemplate.send("tweet-create-topic", tweetCreatedEvent);
 
-            return mapper.map(savedTweet, TweetDto.class);
+        return mapper.map(savedTweet, TweetDto.class);
     }
 
     @Override
@@ -63,11 +72,10 @@ public class TweetServiceImpl implements TweetService {
 
     @Override
     public void updateTweetLikeCount(Tweet tweet, String method) {
-        if(method.equals("like")){
-            tweet.setLikeCount(tweet.getLikeCount()+1);
-        }
-        else{
-            tweet.setLikeCount(tweet.getLikeCount()-1);
+        if (method.equals("like")) {
+            tweet.setLikeCount(tweet.getLikeCount() + 1);
+        } else {
+            tweet.setLikeCount(tweet.getLikeCount() - 1);
         }
         tweetRepository.save(tweet);
     }

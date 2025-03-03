@@ -24,21 +24,12 @@ public class JwtService {
 
     public String generateAccessToken(User user) {
         return Jwts.builder()
-                .subject(user.getId().toString())
+                .subject(user.getId().toString()+ "!" +user.getName())
                 .claim("email", user.getEmail())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000*60*100))
                 .signWith(getSecretKey())
                 .compact();
-    }
-
-    public Long getUserIdFromToken(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(getSecretKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return Long.valueOf(claims.getSubject());
     }
 
 }

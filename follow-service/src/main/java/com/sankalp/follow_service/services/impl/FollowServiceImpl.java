@@ -2,6 +2,7 @@ package com.sankalp.follow_service.services.impl;
 
 import com.sankalp.follow_service.auth.UserContextHolder;
 import com.sankalp.follow_service.dto.PersonCreateDto;
+import com.sankalp.follow_service.dto.PersonDto;
 import com.sankalp.follow_service.entity.Person;
 import com.sankalp.follow_service.repository.PersonRepository;
 import com.sankalp.follow_service.services.FollowService;
@@ -25,7 +26,7 @@ public class FollowServiceImpl implements FollowService {
     }
 
     @Override
-    public List<Person> getFirstFollowers(Long userId) {
+    public List<Person> getUserFollowers(Long userId) {
         return personRepository.findFirstDegreeFollowers(userId);
     }
 
@@ -38,11 +39,13 @@ public class FollowServiceImpl implements FollowService {
         personRepository.save(person);
     }
 
+
     @Override
-    public void sendNotificationToFollowers() {
+    public List<PersonDto> getMyFollowers() {
         Long userId = UserContextHolder.getCurrentUserId();
 
-        List<Person> followers = personRepository.findFirstDegreeFollowers(userId);
-
+        List<Person> userFollowers = personRepository.findFirstDegreeFollowers(userId);
+        return userFollowers.stream().map(userFollower -> mapper.map(userFollower, PersonDto.class))
+                                .toList();
     }
 }

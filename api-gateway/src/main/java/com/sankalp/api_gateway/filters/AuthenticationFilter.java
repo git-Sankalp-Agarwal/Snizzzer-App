@@ -36,10 +36,14 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
             }
             String token = authorizationHeader.split("Bearer ")[1];
 
-            String userId = jwtService.getUserIdFromToken(token);
+            String userData = jwtService.getUserIdFromToken(token);
+
+            String userId = userData.split("!")[0];
+
+            String userName = userData.split("!")[1];
 
             ServerWebExchange webExchange = exchange.mutate()
-                                                    .request(r -> r.header("X-User-Id", userId))
+                                                    .request(r -> r.header("X-User-Id", userId).header("X-User-Name", userName))
                                                     .build();
 
             return chain.filter(webExchange);

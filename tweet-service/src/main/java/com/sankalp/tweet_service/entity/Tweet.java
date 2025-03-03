@@ -26,6 +26,8 @@ public class Tweet {
 
     @Column(nullable = false)
     private Long userId;
+    @Column(nullable = false)
+    private String tweetCreatorName;
 
     private Long parentTweetId; // to check if it is a reply or original tweet
 

@@ -24,6 +24,9 @@ public class TweetLike {
     @Column(nullable = false)
     private Long userId;
 
+    @Column(nullable = false)
+    private String likedByUserName;
+
     @ManyToOne(fetch = FetchType.EAGER)
     private Tweet tweet;
 

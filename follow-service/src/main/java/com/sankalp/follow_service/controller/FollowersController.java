@@ -1,6 +1,7 @@
 package com.sankalp.follow_service.controller;
 
 import com.sankalp.follow_service.dto.PersonCreateDto;
+import com.sankalp.follow_service.dto.PersonDto;
 import com.sankalp.follow_service.entity.Person;
 import com.sankalp.follow_service.services.FollowService;
 import lombok.RequiredArgsConstructor;
@@ -27,15 +28,13 @@ public class FollowersController {
     @GetMapping("/getPersonFollowers/{userId}")
     public List<Person> getFollowers(@PathVariable Long userId){
         log.info("Getting first degree followers for userId::: {} ", userId);
-        return followService.getFirstFollowers(userId);
+        return followService.getUserFollowers(userId);
     }
 
-    @GetMapping("/sendNotificationToFollowers")
-    public void sendNotificationToFollowers(){
-        return followService.sendNotificationToFollowers();
+    @GetMapping("/getMyFollowers")
+    public List<PersonDto> getFollowers(){
+        return followService.getMyFollowers();
     }
-
-
 
     @PostMapping("/createPerson")
     public void createPerson(@RequestBody PersonCreateDto personCreateDto){
