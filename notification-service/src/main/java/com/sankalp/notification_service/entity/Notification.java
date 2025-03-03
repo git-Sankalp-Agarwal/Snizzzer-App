@@ -1,20 +1,20 @@
 package com.sankalp.notification_service.entity;
 
 import com.sankalp.notification_service.entity.enums.NotificationType;
-import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Setter
-@Entity
+@Document(collection = "notifications")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class Notification {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     private Long userId;
 
@@ -22,7 +22,6 @@ public class Notification {
 
     private String message;
 
-    @Enumerated(value = EnumType.STRING)
     private NotificationType notificationType;
 
 
