@@ -29,15 +29,15 @@ public class Tweet {
     @Column(nullable = false)
     private String tweetCreatorName;
 
-    private Long parentTweetId; // to check if it is a reply or original tweet
+    private Long parentTweetId;     // to check if it is a reply or original tweet
 
-    private Long likeCount;
+    private Long likeCount = 0L;
 
-    private Long retweetCount;
+    private Long retweetCount = 0L;
 
-    private Long repliesCount;
+    private Long repliesCount = 0L;
 
-    private boolean isReplyTweet;
+    private boolean isReplyTweet = false;
 
     @CreationTimestamp
     private LocalDateTime tweetCreateTime;

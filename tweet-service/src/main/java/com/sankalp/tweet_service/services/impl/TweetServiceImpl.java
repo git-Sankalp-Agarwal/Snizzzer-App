@@ -33,16 +33,19 @@ public class TweetServiceImpl implements TweetService {
     public TweetDto createTweet(TweetCreateRequestDto tweetCreateRequestDto) {
 
         Long userId = UserContextHolder.getCurrentUserId();
+        log.info("Fetched User id from user context::: {}", userId);
+
         String userName = UserContextHolder.getCurrentUserName();
+        log.info("Fetched User Name from user context::: {}", userName);
+
         Tweet tweet = mapper.map(tweetCreateRequestDto, Tweet.class);
+
         tweet.setId(null);
-        tweet.setReplyTweet(false);
-        tweet.setLikeCount(0L);
         tweet.setTweetCreatorName(userName);
-        tweet.setRepliesCount(0L);
         tweet.setUserId(userId);
-        tweet.setRetweetCount(0L);
         Tweet savedTweet = tweetRepository.save(tweet);
+
+        log.info("Creating of tweet event to send notification");
 
         TweetCreatedEvent tweetCreatedEvent = new TweetCreatedEvent();
         tweetCreatedEvent.setCreatorId(userId);
