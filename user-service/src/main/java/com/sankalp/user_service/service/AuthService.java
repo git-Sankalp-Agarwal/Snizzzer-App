@@ -63,7 +63,7 @@ public class AuthService {
 
         PersonCreateDto person = new PersonCreateDto();
         person.setUserId(user.getId());
-        person.setName(user.getName());
+        person.setName(user.getFirstName());
 
         followersClient.createPerson(person);
     }
