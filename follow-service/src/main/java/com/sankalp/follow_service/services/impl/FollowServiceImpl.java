@@ -39,6 +39,9 @@ public class FollowServiceImpl implements FollowService {
 
     @Override
     public void createPerson(PersonCreateDto personCreateDto) {
+
+        log.info("Creating person with details ::: {} ", personCreateDto);
+
         Person person = Person.builder()
                               .userId(personCreateDto.getUserId())
                               .name(personCreateDto.getName())

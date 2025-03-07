@@ -44,8 +44,6 @@ public class FollowersController {
     @PostMapping("/createPerson")
     public void createPerson(@RequestBody PersonCreateDto personCreateDto){
 
-        log.info("Creating person with details ::: {} ", personCreateDto);
-
         followService.createPerson(personCreateDto);
     }
 
