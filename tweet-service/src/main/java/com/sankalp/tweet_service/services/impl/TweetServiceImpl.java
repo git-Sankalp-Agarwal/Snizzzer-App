@@ -112,4 +112,13 @@ public class TweetServiceImpl implements TweetService {
 
     }
 
+    @Override
+    @CacheEvict(cacheNames = USER_TWEETS_CACHE_NAME, key = "#tweetId")
+    public void updateTweet(Long tweetId) {
+        Tweet tweet = tweetRepository.findById(tweetId)
+                                     .orElseThrow(() -> new ResourceNotFoundException("Tweet not found with id::: " + tweetId));
+
+        tweetRepository.save(tweet);
+    }
+
 }

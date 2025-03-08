@@ -1,7 +1,10 @@
 package com.sankalp.tweet_service.controllers;
 
+import com.sankalp.tweet_service.dto.RetweetDto;
 import com.sankalp.tweet_service.dto.TweetCreateRequestDto;
 import com.sankalp.tweet_service.dto.TweetDto;
+import com.sankalp.tweet_service.entity.Retweet;
+import com.sankalp.tweet_service.services.RetweetService;
 import com.sankalp.tweet_service.services.TweetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,6 +19,7 @@ import java.util.List;
 public class TweetController {
 
     private final TweetService tweetService;
+    private final RetweetService retweetService;
 
     @PostMapping("/createTweet")
     public ResponseEntity<TweetDto> createNewTweet(@RequestBody TweetCreateRequestDto tweetCreateRequestDto){
@@ -33,5 +37,9 @@ public class TweetController {
         return ResponseEntity.ok(tweetService.getUserTweets(userId));
     }
 
+    @PostMapping("/createTweet/{tweetId}")
+    public ResponseEntity<RetweetDto> createReTweet(@PathVariable Long tweetId){
+        return ResponseEntity.ok(retweetService.createRetweet(tweetId));
+    }
 
 }

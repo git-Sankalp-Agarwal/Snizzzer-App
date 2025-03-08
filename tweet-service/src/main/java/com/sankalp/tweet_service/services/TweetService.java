@@ -17,4 +17,6 @@ public interface TweetService {
     void updateTweetLikeCount(Tweet tweet, String method);
 
     List<TweetDto> getUserTweets(Long userId);
+
+    void updateTweet(Long tweetId);
 }
