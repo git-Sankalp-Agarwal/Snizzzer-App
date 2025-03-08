@@ -1,0 +1,5 @@
+# Ignore a folder and everything inside it
+logs/
+
+# Ignore all `.log` files in the repo
+*.log
