@@ -12,6 +12,9 @@ import com.sankalp.tweet_service.services.TweetService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +30,13 @@ public class TweetServiceImpl implements TweetService {
     private final TweetRepository tweetRepository;
     private final ModelMapper mapper;
     private final FollowersClient followersClient;
+    private final String USER_TWEETS_CACHE_NAME = "getUserTweets";
+    private final String TWEETS_CACHE_NAME = "getTweets";
     private final KafkaTemplate<Long, TweetCreatedEvent> postCreateKafkaTemplate;
 
     @Override
+    @CachePut(cacheNames = TWEETS_CACHE_NAME, key = "#result.id")
+    @CacheEvict(cacheNames = USER_TWEETS_CACHE_NAME, key = "#result.userId")
     public TweetDto createTweet(TweetCreateRequestDto tweetCreateRequestDto) {
 
         Long userId = UserContextHolder.getCurrentUserId();
@@ -59,7 +66,11 @@ public class TweetServiceImpl implements TweetService {
     }
 
     @Override
+    @Cacheable(cacheNames = TWEETS_CACHE_NAME, key = "#tweetId")
     public TweetDto getTweet(Long tweetId) {
+
+        log.info("Fetching tweet from repository: {}", tweetId);
+
         Tweet tweet = tweetRepository.findById(tweetId)
                                      .orElseThrow(() -> new ResourceNotFoundException("Tweet not found with id::: " + tweetId));
 
@@ -69,6 +80,9 @@ public class TweetServiceImpl implements TweetService {
 
     @Override
     public Tweet getTweetInternally(Long tweetId) {
+
+        log.info("Fetching tweet internally for method from repository: {}", tweetId);
+
         return tweetRepository.findById(tweetId)
                               .orElseThrow(() -> new ResourceNotFoundException("Tweet not found with id::: " + tweetId));
     }
@@ -84,7 +98,10 @@ public class TweetServiceImpl implements TweetService {
     }
 
     @Override
+    @Cacheable(cacheNames = USER_TWEETS_CACHE_NAME, key = "#userId")
     public List<TweetDto> getUserTweets(Long userId) {
+        log.info("Fetching tweets for user from repository: {}", userId);
+
         List<Tweet> userTweets = tweetRepository.findByUserId(userId)
                                                 .orElseThrow(() -> new ResourceNotFoundException("No tweets were found with userId::: " + userId));
 

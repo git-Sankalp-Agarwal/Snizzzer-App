@@ -26,7 +26,7 @@ public class FollowersController {
     }
 
     @GetMapping("/getPersonFollowers/{userId}")
-    public List<Person> getFollowers(@PathVariable Long userId){
+    public List<PersonDto> getFollowers(@PathVariable Long userId){
         log.info("Getting first degree followers for userId::: {} ", userId);
         return followService.getUserFollowers(userId);
     }

@@ -10,7 +10,7 @@ public interface FollowService {
 
     Person getPersonByName(String name);
 
-    List<Person> getUserFollowers(Long userId);
+    List<PersonDto> getUserFollowers(Long userId);
 
     void createPerson(PersonCreateDto personCreateDto);
 

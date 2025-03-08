@@ -11,6 +11,7 @@ import com.sankalp.tweet_service.services.TweetService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -21,10 +22,12 @@ public class TweetLikeServiceImpl implements TweetLikeService {
 
     private final TweetService tweetService;
     private final TweetLikeRepository tweetLikeRepository;
+    private final String TWEETS_LIKES_CACHE_NAME = "getTweetsLike";
     private final KafkaTemplate<Long, TweetLikeEvent> tweetLikeEventKafkaTemplate;
 
     @Override
     @Transactional
+    @CachePut(cacheNames = TWEETS_LIKES_CACHE_NAME, key = "#tweetId")
     public void updateTweetLike(Long tweetId) {
         Tweet tweet = tweetService.getTweetInternally(tweetId);
         Long userId = UserContextHolder.getCurrentUserId();

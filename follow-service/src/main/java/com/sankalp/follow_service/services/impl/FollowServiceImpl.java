@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,7 @@ public class FollowServiceImpl implements FollowService {
     private final PersonRepository personRepository;
     private final ModelMapper mapper;
     private final KafkaTemplate<Long, UserFollowedEvent> userFollowedEventTemplate;
-
+    private final String FOLLOWERS_CACHE_NAME = "getFollowers";
 
     @Override
     public Person getPersonByName(String name) {
@@ -33,8 +34,11 @@ public class FollowServiceImpl implements FollowService {
     }
 
     @Override
-    public List<Person> getUserFollowers(Long userId) {
-        return personRepository.findFirstDegreeFollowers(userId);
+    public List<PersonDto> getUserFollowers(Long userId) {
+        List<Person> userFollowers = personRepository.findFirstDegreeFollowers(userId);
+        return userFollowers.stream()
+                            .map(userFollower -> mapper.map(userFollower, PersonDto.class))
+                            .toList();
     }
 
     @Override
