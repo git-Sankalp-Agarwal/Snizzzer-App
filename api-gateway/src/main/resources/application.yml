@@ -23,17 +23,3 @@ spring:
             - StripPrefix=2
             - name: AuthenticationFilter
 
-springdoc:
-  api-docs:
-    enabled: true
-    groups:
-      - name: all-microservices
-        paths-to-match: /api/v1/**, /users/**, /tweets/**, /follows/**
-  swagger-ui:
-    urls:
-      - name: User Service
-        url: /api/v1/users/v3/api-docs
-      - name: Tweets Service
-        url: /api/v1/tweets/v3/api-docs
-      - name: Follow Service
-        url: /api/v1/follows/v3/api-docs

@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class RetweetServiceImpl implements RetweetService {
 
     @Override
     @Transactional
+    @CacheEvict(cacheNames = TWEETS_CACHE_NAME, key = "#tweetId")
     public RetweetDto createRetweet(Long tweetId) {
 
         Tweet originalTweet = tweetService.getTweetInternally(tweetId);
