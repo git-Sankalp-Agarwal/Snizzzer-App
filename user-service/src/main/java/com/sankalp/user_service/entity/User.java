@@ -1,5 +1,6 @@
 package com.sankalp.user_service.entity;
 
+import com.sankalp.user_service.entity.enums.AccountType;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -27,6 +28,10 @@ public class User {
     private String firstName;
 
     private String bio;
+
+    @Enumerated(EnumType.STRING)
+    private AccountType accountType;
+
 
     @CreationTimestamp
     private LocalDateTime userCreatedTime;

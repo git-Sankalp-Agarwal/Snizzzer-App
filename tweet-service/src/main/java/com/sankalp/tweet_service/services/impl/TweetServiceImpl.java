@@ -6,6 +6,7 @@ import com.sankalp.tweet_service.dto.TweetCreateRequestDto;
 import com.sankalp.tweet_service.dto.TweetDto;
 import com.sankalp.tweet_service.entity.Tweet;
 import com.sankalp.tweet_service.event.TweetCreatedEvent;
+import com.sankalp.tweet_service.exceptions.ResourceAccessDeniedException;
 import com.sankalp.tweet_service.exceptions.ResourceNotFoundException;
 import com.sankalp.tweet_service.repository.TweetRepository;
 import com.sankalp.tweet_service.services.TweetService;
@@ -100,12 +101,20 @@ public class TweetServiceImpl implements TweetService {
     @Override
     @Cacheable(cacheNames = USER_TWEETS_CACHE_NAME, key = "#userId")
     public List<TweetDto> getUserTweets(Long userId) {
+        Long currentUserId = UserContextHolder.getCurrentUserId();
+
         log.info("Fetching tweets for user from repository: {}", userId);
 
+        boolean isPrivateAccount = true;
+        boolean isFollower = true;
+
+        // If the account is private and the current user is not a follower, deny access.
+        if (isPrivateAccount && !isFollower) {
+            log.warn("Access denied for user {}: not a follower of private account {}", currentUserId, userId);
+            throw new ResourceAccessDeniedException("You are not authorized to view tweets for this user.");
+        }
         List<Tweet> userTweets = tweetRepository.findByUserId(userId)
                                                 .orElseThrow(() -> new ResourceNotFoundException("No tweets were found with userId::: " + userId));
-
-
         return userTweets.stream()
                          .map(userTweet -> mapper.map(userTweet, TweetDto.class))
                          .collect(Collectors.toList());

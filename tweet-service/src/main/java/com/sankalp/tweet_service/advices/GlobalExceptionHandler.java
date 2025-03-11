@@ -1,6 +1,7 @@
 package com.sankalp.tweet_service.advices;
 
 
+import com.sankalp.tweet_service.exceptions.ResourceAccessDeniedException;
 import com.sankalp.tweet_service.exceptions.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,17 @@ public class GlobalExceptionHandler {
                 .build();
         return buildErrorResponseEntity(apiError);
     }
+
+    @ExceptionHandler(ResourceAccessDeniedException.class)
+    public ResponseEntity<ApiResponse<?>> handleResourceAccessDeniedException(ResourceAccessDeniedException exception) {
+        ApiError apiError = ApiError.builder()
+                                    .status(HttpStatus.FORBIDDEN)
+                                    .message(exception.getMessage())
+                                    .build();
+        return buildErrorResponseEntity(apiError);
+    }
+
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<?>> handleInternalServerError(Exception exception) {
         ApiError apiError = ApiError.builder()

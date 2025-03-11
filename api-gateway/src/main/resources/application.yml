@@ -2,12 +2,19 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: user-service
+        - id: user-service-public
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/v1/users/auth/register , /api/v1/users/auth/login
+          filters:
+            - StripPrefix=2
+        - id: user-service-private
           uri: lb://USER-SERVICE
           predicates:
             - Path=/api/v1/users/**
           filters:
             - StripPrefix=2
+            - name: AuthenticationFilter
         - id: tweets-service
           uri: lb://TWEET-SERVICE
           predicates:

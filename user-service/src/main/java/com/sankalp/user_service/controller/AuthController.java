@@ -21,7 +21,7 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/signup")
+    @PostMapping("/register")
     public ResponseEntity<UserDto> signUp(@RequestBody SignupRequestDto signupRequestDto) {
         UserDto userDto = authService.signUp(signupRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
@@ -31,5 +31,10 @@ public class AuthController {
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
         String token = authService.login(loginRequestDto);
         return ResponseEntity.status(HttpStatus.OK).body(new LoginResponseDto(token));
+    }
+
+    @PostMapping("/changeAccountPrivacy")
+    public ResponseEntity<UserDto> changeAccountPrivacy(){
+        return ResponseEntity.status(HttpStatus.OK).body(authService.changeUserPrivacy());
     }
 }
