@@ -1,5 +1,6 @@
 package com.sankalp.follow_service.controller;
 
+import com.sankalp.follow_service.advices.ApiResponse;
 import com.sankalp.follow_service.dto.PersonCreateDto;
 import com.sankalp.follow_service.dto.PersonDto;
 import com.sankalp.follow_service.entity.Person;
@@ -31,13 +32,20 @@ public class FollowersController {
         return followService.getUserFollowers(userId);
     }
 
+    @GetMapping("/IsFollower/sender/{senderId}/receiver/{receiverId}")
+    public boolean checkIfUserIsFollower(@PathVariable Long senderId , @PathVariable Long receiverId){
+        log.info("Checking if userId::: {} is a followers for userId::: {} ", senderId, receiverId);
+        return followService.checkIfUserIsFollower(senderId, receiverId);
+    }
+
+
     @PostMapping("/startFollowing/{receiverId}")
     public void startFollowing(@PathVariable Long receiverId){
         followService.followPerson(receiverId);
     }
 
     @GetMapping("/getMyFollowers")
-    public List<PersonDto> getFollowers(){
+    public List<PersonDto> getMyFollowers(){
         return followService.getMyFollowers();
     }
 

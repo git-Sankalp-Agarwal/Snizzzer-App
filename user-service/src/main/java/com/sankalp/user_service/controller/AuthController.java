@@ -1,6 +1,7 @@
 package com.sankalp.user_service.controller;
 
 
+import com.sankalp.user_service.advices.ApiResponse;
 import com.sankalp.user_service.dto.LoginRequestDto;
 import com.sankalp.user_service.dto.LoginResponseDto;
 import com.sankalp.user_service.dto.SignupRequestDto;
@@ -9,10 +10,7 @@ import com.sankalp.user_service.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -37,4 +35,11 @@ public class AuthController {
     public ResponseEntity<UserDto> changeAccountPrivacy(){
         return ResponseEntity.status(HttpStatus.OK).body(authService.changeUserPrivacy());
     }
+
+    @GetMapping("/checkAccountPrivacy/{userId}")
+    public boolean checkAccountPrivacy(@PathVariable Long userId){
+        return authService.checkUserPrivacy(userId);
+    }
+
+
 }

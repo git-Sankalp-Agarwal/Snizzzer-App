@@ -1,5 +1,6 @@
 package com.sankalp.notification_service.clients;
 
+import com.sankalp.notification_service.advices.ApiResponse;
 import com.sankalp.notification_service.dto.PersonDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +13,6 @@ import java.util.List;
 public interface FollowersClient {
 
     @GetMapping("/core/getMyFollowers")
-    List<PersonDto> getFollowers(@RequestHeader(name = "X-User-Id", required = false) Long userId, @RequestHeader(name = "X-User-Name", required = false) String postCreatorName);
+    ApiResponse<List<PersonDto>> getMyFollowers(@RequestHeader(name = "X-User-Id", required = false) Long userId, @RequestHeader(name = "X-User-Name", required = false) String postCreatorName);
 
 }

@@ -1,6 +1,7 @@
 package com.sankalp.user_service.service;
 
 
+import com.sankalp.user_service.advices.ApiResponse;
 import com.sankalp.user_service.auth.UserContextHolder;
 import com.sankalp.user_service.clients.FollowersClient;
 import com.sankalp.user_service.dto.LoginRequestDto;
@@ -16,7 +17,6 @@ import com.sankalp.user_service.utils.PasswordUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.startup.UserConfig;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -90,5 +90,15 @@ public class AuthService {
         User savedUser = userRepository.save(user);
 
         return modelMapper.map(savedUser, UserDto.class);
+    }
+
+    public boolean checkUserPrivacy(Long userId) {
+
+        User user = userRepository.findById(userId)
+                                  .orElseThrow(() -> new RuntimeException("user not found"));
+
+        return user.getAccountType().equals(AccountType.PRIVATE);
+
+      //  return new ApiResponse<>(isPrivate);
     }
 }

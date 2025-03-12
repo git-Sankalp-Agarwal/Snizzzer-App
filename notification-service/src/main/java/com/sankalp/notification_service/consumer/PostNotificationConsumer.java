@@ -24,7 +24,7 @@ public class PostNotificationConsumer {
     @KafkaListener(topics = "tweet-create-topic")
     public void handleTweetCreateEvent(TweetCreatedEvent tweetCreatedEvent){
 
-        List<PersonDto> followerList = followersClient.getFollowers(tweetCreatedEvent.getCreatorId(), tweetCreatedEvent.getCreatorName());
+        List<PersonDto> followerList = followersClient.getMyFollowers(tweetCreatedEvent.getCreatorId(), tweetCreatedEvent.getCreatorName()).getData();
         String tweetCreateNotificationMessage = tweetCreatedEvent.getCreatorName() + " has tweeted!!!! Check it Out!! has id:: "+ tweetCreatedEvent.getCreatorId();
         for(PersonDto follower: followerList){
             sendNotification.sendTweetNotification(follower.getUserId(), tweetCreateNotificationMessage, NotificationType.TWEET_CREATE, tweetCreatedEvent.getTweetId());

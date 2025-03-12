@@ -1,5 +1,6 @@
 package com.sankalp.tweet_service.clients;
 
+import com.sankalp.tweet_service.advices.ApiResponse;
 import com.sankalp.tweet_service.dto.PersonDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,7 +11,7 @@ import java.util.List;
 @FeignClient(name = "follow-service", path = "/follows")
 public interface FollowersClient {
 
-    @GetMapping("/core/getPersonFollowers/{userId}")
-    public List<PersonDto> getFollowers(@PathVariable Long userId);
+    @GetMapping("/core/IsFollower/sender/{senderId}/receiver/{receiverId}")
+    ApiResponse<Boolean> checkIfUserIsFollower(@PathVariable Long senderId , @PathVariable Long receiverId);
 
 }

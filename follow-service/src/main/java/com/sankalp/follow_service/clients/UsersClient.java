@@ -1,0 +1,14 @@
+package com.sankalp.follow_service.clients;
+
+import com.sankalp.follow_service.advices.ApiResponse;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+@FeignClient(name = "user-service-private", path = "/users")
+public interface UsersClient {
+
+    @GetMapping("/auth/checkAccountPrivacy/{userId}")
+    ApiResponse<Boolean> checkAccountPrivacy(@PathVariable Long userId);
+
+}

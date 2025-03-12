@@ -15,7 +15,7 @@ public class AppConfig {
         return new ModelMapper();
     }
 
-    @Bean
+   // @Bean
     public Capability capability(final MeterRegistry registry) {
         return new MicrometerCapability(registry);
     }

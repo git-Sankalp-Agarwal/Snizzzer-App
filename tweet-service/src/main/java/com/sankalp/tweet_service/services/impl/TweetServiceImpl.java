@@ -1,7 +1,9 @@
 package com.sankalp.tweet_service.services.impl;
 
+import com.sankalp.tweet_service.advices.ApiResponse;
 import com.sankalp.tweet_service.auth.UserContextHolder;
 import com.sankalp.tweet_service.clients.FollowersClient;
+import com.sankalp.tweet_service.clients.UsersClient;
 import com.sankalp.tweet_service.dto.TweetCreateRequestDto;
 import com.sankalp.tweet_service.dto.TweetDto;
 import com.sankalp.tweet_service.entity.Tweet;
@@ -10,6 +12,7 @@ import com.sankalp.tweet_service.exceptions.ResourceAccessDeniedException;
 import com.sankalp.tweet_service.exceptions.ResourceNotFoundException;
 import com.sankalp.tweet_service.repository.TweetRepository;
 import com.sankalp.tweet_service.services.TweetService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -31,6 +34,7 @@ public class TweetServiceImpl implements TweetService {
     private final TweetRepository tweetRepository;
     private final ModelMapper mapper;
     private final FollowersClient followersClient;
+    private final UsersClient usersClient;
     private final String USER_TWEETS_CACHE_NAME = "getUserTweets";
     private final String TWEETS_CACHE_NAME = "getTweets";
     private final KafkaTemplate<Long, TweetCreatedEvent> postCreateKafkaTemplate;
@@ -38,6 +42,7 @@ public class TweetServiceImpl implements TweetService {
     @Override
     @CachePut(cacheNames = TWEETS_CACHE_NAME, key = "#result.id")
     @CacheEvict(cacheNames = USER_TWEETS_CACHE_NAME, key = "#result.userId")
+    @Transactional
     public TweetDto createTweet(TweetCreateRequestDto tweetCreateRequestDto) {
 
         Long userId = UserContextHolder.getCurrentUserId();
@@ -69,6 +74,7 @@ public class TweetServiceImpl implements TweetService {
     @Override
     @Cacheable(cacheNames = TWEETS_CACHE_NAME, key = "#tweetId")
     public TweetDto getTweet(Long tweetId) {
+
 
         log.info("Fetching tweet from repository: {}", tweetId);
 
@@ -105,12 +111,13 @@ public class TweetServiceImpl implements TweetService {
 
         log.info("Fetching tweets for user from repository: {}", userId);
 
-        boolean isPrivateAccount = true;
-        boolean isFollower = true;
+        boolean isFollowerMan = followersClient.checkIfUserIsFollower(currentUserId, userId).getData() || currentUserId.equals(userId);
+
+        boolean isPrivateAccount = usersClient.checkAccountPrivacy(userId).getData();
 
         // If the account is private and the current user is not a follower, deny access.
-        if (isPrivateAccount && !isFollower) {
-            log.warn("Access denied for user {}: not a follower of private account {}", currentUserId, userId);
+        if (isPrivateAccount && !isFollowerMan) {
+            log.info("Access denied for user {}: not a follower of private account {}", currentUserId, userId);
             throw new ResourceAccessDeniedException("You are not authorized to view tweets for this user.");
         }
         List<Tweet> userTweets = tweetRepository.findByUserId(userId)

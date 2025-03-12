@@ -9,11 +9,20 @@ import org.springframework.kafka.config.TopicBuilder;
 public class KafkaTopicConfig {
 
     @Bean
-    public NewTopic createTweetTopic() {
+    public NewTopic createUserFollowedTopic() {
         return TopicBuilder.name("user-followed-topic")
                            .partitions(3)
                            .replicas(1)
                            .build();
     }
+
+    @Bean
+    public NewTopic createUserFollowRequestTopic() {
+        return TopicBuilder.name("user-follow-request-topic")
+                           .partitions(3)
+                           .replicas(1)
+                           .build();
+    }
+
 
 }
