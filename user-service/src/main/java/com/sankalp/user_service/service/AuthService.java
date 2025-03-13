@@ -4,10 +4,8 @@ package com.sankalp.user_service.service;
 import com.sankalp.user_service.advices.ApiResponse;
 import com.sankalp.user_service.auth.UserContextHolder;
 import com.sankalp.user_service.clients.FollowersClient;
-import com.sankalp.user_service.dto.LoginRequestDto;
-import com.sankalp.user_service.dto.PersonCreateDto;
-import com.sankalp.user_service.dto.SignupRequestDto;
-import com.sankalp.user_service.dto.UserDto;
+import com.sankalp.user_service.clients.MessageServiceClient;
+import com.sankalp.user_service.dto.*;
 import com.sankalp.user_service.entity.User;
 import com.sankalp.user_service.entity.enums.AccountType;
 import com.sankalp.user_service.entity.enums.Role;
@@ -32,6 +30,7 @@ public class AuthService {
     private final ModelMapper modelMapper;
     private final JwtService jwtService;
     private final FollowersClient followersClient;
+    private final MessageServiceClient messageServiceClient;
 
     @Transactional
     public UserDto signUp(SignupRequestDto signupRequestDto) {
@@ -50,6 +49,8 @@ public class AuthService {
 
         createPerson(savedUser); // create person for follower service
 
+        createParticipant(savedUser); // create participant for message service
+
         return modelMapper.map(savedUser, UserDto.class);
     }
 
@@ -65,6 +66,17 @@ public class AuthService {
 
         return jwtService.generateAccessToken(user);
     }
+
+    public void createParticipant(User user) {
+        log.info("Creating participant for message service");
+
+        ParticipantCreateDto participantCreateDto = ParticipantCreateDto.builder()
+                                                                        .participantUserId(user.getId())
+                                                                        .participantName(user.getFirstName())
+                                                                        .build();
+        messageServiceClient.createParticipant(participantCreateDto);
+    }
+
 
     public void createPerson(User user) {
         log.info("Creating person for followers service");
@@ -84,10 +96,10 @@ public class AuthService {
 
         log.info("Changing User privacy for user :: {}", user);
 
-        if(user.getAccountType().equals(AccountType.PUBLIC)){ // changing user privacy data
+        if (user.getAccountType()
+                .equals(AccountType.PUBLIC)) { // changing user privacy data
             user.setAccountType(AccountType.PRIVATE);
-        }
-        else {
+        } else {
             user.setAccountType(AccountType.PUBLIC);
         }
 
@@ -101,8 +113,9 @@ public class AuthService {
         User user = userRepository.findById(userId)
                                   .orElseThrow(() -> new RuntimeException("user not found"));
 
-        return user.getAccountType().equals(AccountType.PRIVATE);
+        return user.getAccountType()
+                   .equals(AccountType.PRIVATE);
 
-      //  return new ApiResponse<>(isPrivate);
+        //  return new ApiResponse<>(isPrivate);
     }
 }

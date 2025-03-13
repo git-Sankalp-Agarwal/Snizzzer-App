@@ -29,4 +29,11 @@ spring:
           filters:
             - StripPrefix=2
             - name: AuthenticationFilter
+        - id: message-service
+          uri: lb://MESSAGE-SERVICE
+          predicates:
+            - Path=/api/v1/messages/**
+          filters:
+            - StripPrefix=2
+            - name: AuthenticationFilter
 
