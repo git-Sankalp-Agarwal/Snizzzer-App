@@ -2,11 +2,9 @@ package com.sankalp.api_gateway.filters;
 
 import com.sankalp.api_gateway.services.JwtService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -34,7 +32,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 return exchange.getResponse()
                                .setComplete();
             }
-            String token = authorizationHeader.split("Bearer ")[1];
+            String token = authorizationHeader.split("Bearer ")[1]; // Remove 'Bearer ' prefix
 
             String userData = jwtService.getUserIdFromToken(token);
 
@@ -42,8 +40,14 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 
             String userName = userData.split("!")[1];
 
+            String userRoles = jwtService.getUserRolesFromToken(token);
+
+            String roles = userRoles.substring(1, userRoles.length() - 1);
+
             ServerWebExchange webExchange = exchange.mutate()
-                                                    .request(r -> r.header("X-User-Id", userId).header("X-User-Name", userName))
+                                                    .request(r -> r.header("X-User-Id", userId)
+                                                                          .header("X-User-Name", userName)
+                                                                          .header("X-User-Roles", roles))
                                                     .build();
 
             return chain.filter(webExchange);

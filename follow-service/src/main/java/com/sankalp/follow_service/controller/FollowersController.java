@@ -1,6 +1,7 @@
 package com.sankalp.follow_service.controller;
 
 import com.sankalp.follow_service.advices.ApiResponse;
+import com.sankalp.follow_service.annotations.RolesAllowed;
 import com.sankalp.follow_service.dto.PersonCreateDto;
 import com.sankalp.follow_service.dto.PersonDto;
 import com.sankalp.follow_service.entity.Person;
@@ -38,7 +39,7 @@ public class FollowersController {
         return followService.checkIfUserIsFollower(senderId, receiverId);
     }
 
-
+    @RolesAllowed({"USER"})
     @PostMapping("/startFollowing/{receiverId}")
     public void startFollowing(@PathVariable Long receiverId){
         followService.followPerson(receiverId);

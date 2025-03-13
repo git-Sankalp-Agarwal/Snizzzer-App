@@ -1,12 +1,17 @@
 package com.sankalp.user_service.entity;
 
 import com.sankalp.user_service.entity.enums.AccountType;
+import com.sankalp.user_service.entity.enums.Role;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @Entity
@@ -32,6 +37,11 @@ public class User {
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_roles")
+    private Set<Role> roles;
 
     @CreationTimestamp
     private LocalDateTime userCreatedTime;

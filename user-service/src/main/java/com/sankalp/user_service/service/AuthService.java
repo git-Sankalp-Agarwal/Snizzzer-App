@@ -10,6 +10,7 @@ import com.sankalp.user_service.dto.SignupRequestDto;
 import com.sankalp.user_service.dto.UserDto;
 import com.sankalp.user_service.entity.User;
 import com.sankalp.user_service.entity.enums.AccountType;
+import com.sankalp.user_service.entity.enums.Role;
 import com.sankalp.user_service.exception.BadRequestException;
 import com.sankalp.user_service.exception.ResourceNotFoundException;
 import com.sankalp.user_service.repository.UserRepository;
@@ -19,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +44,7 @@ public class AuthService {
         user.setAccountType(AccountType.PUBLIC);
         user.setPassword(PasswordUtil.hashPassword(signupRequestDto.getPassword()));
 
+        user.setRoles(Set.of(Role.USER));
         log.info("Saving user: {}", user);
         User savedUser = userRepository.save(user);
 

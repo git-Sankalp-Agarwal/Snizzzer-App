@@ -29,5 +29,16 @@ public class JwtService {
         return claims.getSubject();
     }
 
+    public String getUserRolesFromToken(String token) {
+        Claims claims = Jwts.parser()
+                            .verifyWith(getSecretKey())
+                            .build()
+                            .parseSignedClaims(token)
+                            .getPayload();
+        return claims.get("roles", String.class);
+    }
+
+
+
 
 }
