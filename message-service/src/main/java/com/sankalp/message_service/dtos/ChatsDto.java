@@ -12,6 +12,6 @@ public class ChatsDto {
 
     private Participant participantTwo;
 
-    private List<MessageSentDto> messages;
+    private List<MessageSendDto> messages;
 
 }

@@ -28,7 +28,6 @@ public class Chats {
     private Participant participantTwo;
 
     @OneToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
- //   @JoinColumn(name = "chat_id")
     private List<Message> messages;
 
     @CreationTimestamp

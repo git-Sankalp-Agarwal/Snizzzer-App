@@ -25,6 +25,8 @@ public class Message {
 
     private String messageContent;
 
+    private String messageSender;
+
     @Enumerated(EnumType.STRING)
     private MessageType messageType;
 

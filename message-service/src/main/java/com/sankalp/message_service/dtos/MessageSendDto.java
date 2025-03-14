@@ -12,7 +12,9 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MessageSentDto {
+public class MessageSendDto {
+
+    private String messageSender;
 
     private String messageContent;
 
