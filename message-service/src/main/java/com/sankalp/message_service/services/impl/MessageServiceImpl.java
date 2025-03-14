@@ -20,6 +20,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 @Service
@@ -62,6 +63,8 @@ public class MessageServiceImpl implements MessageService {
         chatsBetweenParticipants.getMessages()
                                 .add(savedMessage);
 
+        chatsBetweenParticipants.setLastMessageAt(LocalDateTime.now());
+
         Chats updateChatsWithSentMessage = chatService.updateParticipantsChat(chatsBetweenParticipants);
 
         MessageSendEvent messageSendEvent = MessageSendEvent.builder()
@@ -87,7 +90,27 @@ public class MessageServiceImpl implements MessageService {
 
         messageRepository.save(message);
 
-        chatService.updateChatMessageStatus(messageDeliveredDto);
+   //     chatService.updateChatMessageStatus(messageDeliveredDto);
 
+    }
+
+    @Override
+    public ChatsDto readMessage(Long messageSenderId, Long messageId) {
+
+        Long messageReaderId = UserContextHolder.getCurrentUserId();
+
+        Participant messageSenderParticipant = participantService.fetchParticipantByUserId(messageSenderId);
+
+        Participant messageReaderParticipant = participantService.fetchParticipantByUserId(messageReaderId);
+
+        Chats chatsBetweenParticipants = chatService.fetchChatBetweenParticipants(messageSenderParticipant, messageReaderParticipant);
+
+        Message message = messageRepository.findById(messageId)
+                                           .orElseThrow();
+        message.setMessageStatus(MessageStatus.READ);
+
+        messageRepository.save(message);
+
+        return modelMapper.map(chatsBetweenParticipants, ChatsDto.class);
     }
 }

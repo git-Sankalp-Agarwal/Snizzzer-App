@@ -5,10 +5,7 @@ import com.sankalp.message_service.dtos.MessageDeliveredDto;
 import com.sankalp.message_service.dtos.MessageDto;
 import com.sankalp.message_service.services.MessageService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/core")
@@ -27,5 +24,9 @@ public class MessageController {
         messageService.updateMessageStatusToDelivered(messageDeliveredDto);
     }
 
+    @GetMapping("/readParticipantChat/{messageSenderId}/readMessage/{messageId}")
+    public ChatsDto readMessage(@PathVariable Long messageSenderId, @PathVariable Long messageId){
+        return messageService.readMessage(messageSenderId, messageId);
+    }
 
 }

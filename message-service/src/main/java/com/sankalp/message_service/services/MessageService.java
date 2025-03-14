@@ -11,4 +11,6 @@ public interface MessageService {
 
 
     void updateMessageStatusToDelivered(MessageDeliveredDto messageDeliveredDto);
+
+    ChatsDto readMessage(Long messageSenderId, Long messageId);
 }
