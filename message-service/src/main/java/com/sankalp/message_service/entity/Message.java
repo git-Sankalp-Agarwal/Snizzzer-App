@@ -25,6 +25,8 @@ public class Message {
 
     private String messageContent;
 
+    private Long messageSenderId;
+
     private String messageSender;
 
     @Enumerated(EnumType.STRING)
@@ -38,5 +40,10 @@ public class Message {
 
     @UpdateTimestamp
     private LocalDateTime editedAt;
+
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "chat_id", nullable = false)
+    private Chats chat;
 
 }

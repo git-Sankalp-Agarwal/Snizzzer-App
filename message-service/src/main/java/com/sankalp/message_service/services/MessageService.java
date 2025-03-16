@@ -9,8 +9,9 @@ public interface MessageService {
 
     ChatsDto sendMessage(MessageDto messageDto);
 
-
     void updateMessageStatusToDelivered(MessageDeliveredDto messageDeliveredDto);
 
-    ChatsDto readMessage(Long messageSenderId, Long messageId);
+    ChatsDto readMessage(Long messageId);
+
+    ChatsDto deleteMessage(Long messageId);
 }

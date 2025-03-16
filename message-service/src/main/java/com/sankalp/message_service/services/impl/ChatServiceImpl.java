@@ -73,4 +73,10 @@ public class ChatServiceImpl implements ChatService {
 
         return mapper.map(chat, ChatsDto.class);
     }
+
+    @Override
+    public Chats getChatWithIdInternal(Long chatId) {
+        return chatsRepository.findById(chatId)
+                              .orElseThrow(() -> new ResourceNotFoundException("No chat found"));
+    }
 }

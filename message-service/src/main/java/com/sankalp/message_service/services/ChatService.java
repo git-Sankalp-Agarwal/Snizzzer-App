@@ -16,4 +16,6 @@ public interface ChatService {
     void updateChatMessageStatus(MessageDeliveredDto messageDeliveredDto);
 
     ChatsDto getChatWithId(Long chatId);
+
+    Chats getChatWithIdInternal(Long chatId);
 }

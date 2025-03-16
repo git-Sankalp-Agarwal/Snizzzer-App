@@ -24,9 +24,15 @@ public class MessageController {
         messageService.updateMessageStatusToDelivered(messageDeliveredDto);
     }
 
-    @GetMapping("/readParticipantChat/{messageSenderId}/readMessage/{messageId}")
-    public ChatsDto readMessage(@PathVariable Long messageSenderId, @PathVariable Long messageId){
-        return messageService.readMessage(messageSenderId, messageId);
+    @GetMapping("/readMessage/{messageId}")
+    public ChatsDto readMessage(@PathVariable Long messageId){
+        return messageService.readMessage(messageId);
     }
+
+    @DeleteMapping("/deleteMessage/{messageId}")
+    public ChatsDto deleteMessage(@PathVariable Long messageId){
+        return messageService.deleteMessage(messageId);
+    }
+
 
 }

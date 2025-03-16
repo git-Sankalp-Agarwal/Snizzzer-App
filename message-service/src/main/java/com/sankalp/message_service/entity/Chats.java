@@ -27,7 +27,7 @@ public class Chats {
     @OneToOne
     private Participant participantTwo;
 
-    @OneToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Message> messages;
 
     @CreationTimestamp

@@ -9,11 +9,16 @@ import com.sankalp.message_service.entity.Message;
 import com.sankalp.message_service.entity.Participant;
 import com.sankalp.message_service.entity.enums.MessageStatus;
 import com.sankalp.message_service.event.MessageSendEvent;
+import com.sankalp.message_service.exceptions.ResourceAccessDeniedException;
+import com.sankalp.message_service.exceptions.ResourceNotFoundException;
+import com.sankalp.message_service.exceptions.UnauthorizedActionException;
+import com.sankalp.message_service.repository.ChatsRepository;
 import com.sankalp.message_service.repository.MessageRepository;
 
 import com.sankalp.message_service.services.ChatService;
 import com.sankalp.message_service.services.MessageService;
 import com.sankalp.message_service.services.ParticipantService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -32,14 +37,22 @@ public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
     private final ParticipantService participantService;
     private final ChatService chatService;
+    private final ChatsRepository chatRepository;
     private final KafkaTemplate<Long, MessageSendEvent> messageSendEventKafkaTemplate;
 
     @Override
+    @Transactional
     public ChatsDto sendMessage(MessageDto messageDto) {
 
         Long messageSenderId = UserContextHolder.getCurrentUserId();
-        String messageSender = UserContextHolder.getCurrentUserName();
+
         Long messageReceiverId = messageDto.getMessageReceiverId();
+
+        if (messageSenderId.equals(messageReceiverId)) {
+            throw new IllegalArgumentException("Sender and Receiver participants are same");
+        }
+
+        String messageSender = UserContextHolder.getCurrentUserName();
 
         Participant messageSenderParticipant = participantService.fetchParticipantByUserId(messageSenderId);
 
@@ -52,10 +65,12 @@ public class MessageServiceImpl implements MessageService {
         }
 
         Message message = Message.builder()
+                                 .messageSenderId(messageSenderId)
                                  .messageSender(messageSender)
                                  .messageContent(messageDto.getMessageContent())
                                  .messageType(messageDto.getMessageType())
                                  .messageStatus(MessageStatus.SENT)
+                                 .chat(chatsBetweenParticipants)
                                  .build();
         Message savedMessage = messageRepository.save(message);
 
@@ -82,6 +97,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
+    @Transactional
     public void updateMessageStatusToDelivered(MessageDeliveredDto messageDeliveredDto) {
 
         Message message = messageRepository.findById(messageDeliveredDto.getMessageId())
@@ -90,27 +106,70 @@ public class MessageServiceImpl implements MessageService {
 
         messageRepository.save(message);
 
-   //     chatService.updateChatMessageStatus(messageDeliveredDto);
+        //     chatService.updateChatMessageStatus(messageDeliveredDto);
 
     }
 
     @Override
-    public ChatsDto readMessage(Long messageSenderId, Long messageId) {
+    @Transactional
+    public ChatsDto readMessage(Long messageId) {
 
         Long messageReaderId = UserContextHolder.getCurrentUserId();
 
-        Participant messageSenderParticipant = participantService.fetchParticipantByUserId(messageSenderId);
+        Message message = messageRepository.findById(messageId)
+                                           .orElseThrow(() -> new ResourceNotFoundException("Message not found with ID: " + messageId));
+
+        Chats chatsBetweenParticipants = message.getChat();
+
+
+        if (message.getMessageSenderId()
+                   .equals(messageReaderId)) {
+            return modelMapper.map(chatsBetweenParticipants, ChatsDto.class);
+        }
 
         Participant messageReaderParticipant = participantService.fetchParticipantByUserId(messageReaderId);
 
-        Chats chatsBetweenParticipants = chatService.fetchChatBetweenParticipants(messageSenderParticipant, messageReaderParticipant);
 
-        Message message = messageRepository.findById(messageId)
-                                           .orElseThrow();
-        message.setMessageStatus(MessageStatus.READ);
+        boolean isParticipantInChat = isParticipantInChat(chatsBetweenParticipants, messageReaderParticipant);
 
-        messageRepository.save(message);
+        if (!isParticipantInChat) {
+            throw new ResourceAccessDeniedException("You are not allowed to access this chat!");
+        }
+
+        if (message.getMessageStatus() != MessageStatus.READ) {
+            message.setMessageStatus(MessageStatus.READ);
+            messageRepository.save(message);
+        }
 
         return modelMapper.map(chatsBetweenParticipants, ChatsDto.class);
     }
+
+    @Override
+    @Transactional
+    public ChatsDto deleteMessage(Long messageId) {
+        Long messageDeleterId = UserContextHolder.getCurrentUserId();
+
+        Message message = messageRepository.findById(messageId)
+                                           .orElseThrow(() -> new ResourceNotFoundException("Message not found with ID: " + messageId));
+
+        if (!message.getMessageSenderId().equals(messageDeleterId)) {
+            throw new ResourceAccessDeniedException("You are not authorized to delete this message.");
+        }
+
+        Chats chat = message.getChat();
+
+        chat.getMessages().removeIf(msg -> msg.getId().equals(messageId));
+
+        chatRepository.save(chat);
+
+        return modelMapper.map(chat, ChatsDto.class);
+    }
+
+
+    private boolean isParticipantInChat(Chats chat, Participant readerParticipant) {
+        Long readerUserId = readerParticipant.getParticipantUserId();
+        return readerUserId.equals(chat.getParticipantOne().getParticipantUserId()) ||
+                readerUserId.equals(chat.getParticipantTwo().getParticipantUserId());
+    }
+
 }
