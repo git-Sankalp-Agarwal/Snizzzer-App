@@ -1,6 +1,7 @@
 package com.sankalp.message_service.services.impl;
 
 import com.sankalp.message_service.auth.UserContextHolder;
+import com.sankalp.message_service.clients.FollowersClient;
 import com.sankalp.message_service.dtos.ChatsDto;
 import com.sankalp.message_service.dtos.MessageDeliveredDto;
 import com.sankalp.message_service.dtos.MessageDto;
@@ -11,13 +12,14 @@ import com.sankalp.message_service.entity.enums.MessageStatus;
 import com.sankalp.message_service.event.MessageSendEvent;
 import com.sankalp.message_service.exceptions.ResourceAccessDeniedException;
 import com.sankalp.message_service.exceptions.ResourceNotFoundException;
-import com.sankalp.message_service.exceptions.UnauthorizedActionException;
 import com.sankalp.message_service.repository.ChatsRepository;
 import com.sankalp.message_service.repository.MessageRepository;
 
 import com.sankalp.message_service.services.ChatService;
 import com.sankalp.message_service.services.MessageService;
 import com.sankalp.message_service.services.ParticipantService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,11 +35,16 @@ import java.util.ArrayList;
 @Slf4j
 public class MessageServiceImpl implements MessageService {
 
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
     private final ModelMapper modelMapper;
     private final MessageRepository messageRepository;
     private final ParticipantService participantService;
     private final ChatService chatService;
     private final ChatsRepository chatRepository;
+    private final FollowersClient followersClient;
     private final KafkaTemplate<Long, MessageSendEvent> messageSendEventKafkaTemplate;
 
     @Override
@@ -50,6 +57,10 @@ public class MessageServiceImpl implements MessageService {
 
         if (messageSenderId.equals(messageReceiverId)) {
             throw new IllegalArgumentException("Sender and Receiver participants are same");
+        }
+
+        if(!followersClient.checkIfUserIsFollower(messageSenderId, messageReceiverId).getData()){
+            throw new RuntimeException("You need to follow user to send message!!");
         }
 
         String messageSender = UserContextHolder.getCurrentUserName();
@@ -152,15 +163,36 @@ public class MessageServiceImpl implements MessageService {
         Message message = messageRepository.findById(messageId)
                                            .orElseThrow(() -> new ResourceNotFoundException("Message not found with ID: " + messageId));
 
-        if (!message.getMessageSenderId().equals(messageDeleterId)) {
+        if (!message.getMessageSenderId()
+                    .equals(messageDeleterId)) {
             throw new ResourceAccessDeniedException("You are not authorized to delete this message.");
         }
 
         Chats chat = message.getChat();
 
-        chat.getMessages().removeIf(msg -> msg.getId().equals(messageId));
+        chat.getMessages()
+            .removeIf(msg -> msg.getId()
+                                .equals(messageId));
 
         chatRepository.save(chat);
+
+        return modelMapper.map(chat, ChatsDto.class);
+    }
+
+    @Override
+    @Transactional
+    public ChatsDto readAndUpdateChat(Long chatId) {
+        Chats chat = chatService.getChatWithIdInternal(chatId);
+        Long currentUserId = UserContextHolder.getCurrentUserId();
+
+        int updatedRows = messageRepository.updateMessageStatus(chatId, MessageStatus.READ, currentUserId);
+
+        log.info("{} messages marked as READ for chat ID {}", updatedRows, chatId);
+
+        // Clear Persistence Context to fetch fresh data
+        entityManager.clear();
+
+        chat = chatService.getChatWithIdInternal(chatId); // fetch again to fetch fresh data
 
         return modelMapper.map(chat, ChatsDto.class);
     }
@@ -168,8 +200,10 @@ public class MessageServiceImpl implements MessageService {
 
     private boolean isParticipantInChat(Chats chat, Participant readerParticipant) {
         Long readerUserId = readerParticipant.getParticipantUserId();
-        return readerUserId.equals(chat.getParticipantOne().getParticipantUserId()) ||
-                readerUserId.equals(chat.getParticipantTwo().getParticipantUserId());
+        return readerUserId.equals(chat.getParticipantOne()
+                                       .getParticipantUserId()) ||
+                readerUserId.equals(chat.getParticipantTwo()
+                                        .getParticipantUserId());
     }
 
 }

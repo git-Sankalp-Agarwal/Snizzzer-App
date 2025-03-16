@@ -1,5 +1,6 @@
 package com.sankalp.message_service.services.impl;
 
+import com.sankalp.message_service.auth.UserContextHolder;
 import com.sankalp.message_service.dtos.ChatsDto;
 import com.sankalp.message_service.dtos.MessageDeliveredDto;
 import com.sankalp.message_service.entity.Chats;

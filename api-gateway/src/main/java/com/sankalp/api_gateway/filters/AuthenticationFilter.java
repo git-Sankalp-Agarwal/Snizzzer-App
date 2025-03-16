@@ -1,6 +1,9 @@
 package com.sankalp.api_gateway.filters;
 
 import com.sankalp.api_gateway.services.JwtService;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -33,8 +36,14 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                                .setComplete();
             }
             String token = authorizationHeader.split("Bearer ")[1]; // Remove 'Bearer ' prefix
-
-            String userData = jwtService.getUserIdFromToken(token);
+            String userData;
+            try {
+                userData = jwtService.getUserIdFromToken(token);
+            } catch (ExpiredJwtException ex) {
+                throw new RuntimeException("Token has expired. Please log in again.");
+            } catch (SignatureException | MalformedJwtException ex) {
+                throw new RuntimeException("Invalid token signature.");
+            }
 
             String userId = userData.split("!")[0];
 
@@ -46,8 +55,8 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 
             ServerWebExchange webExchange = exchange.mutate()
                                                     .request(r -> r.header("X-User-Id", userId)
-                                                                          .header("X-User-Name", userName)
-                                                                          .header("X-User-Roles", roles))
+                                                                   .header("X-User-Name", userName)
+                                                                   .header("X-User-Roles", roles))
                                                     .build();
 
             return chain.filter(webExchange);

@@ -21,10 +21,12 @@ public class Chats {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "participant_one_id", referencedColumnName = "id", nullable = false)
     private Participant participantOne;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "participant_two_id", referencedColumnName = "id", nullable = false)
     private Participant participantTwo;
 
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, fetch = FetchType.EAGER)

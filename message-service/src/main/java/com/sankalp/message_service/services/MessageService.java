@@ -14,4 +14,6 @@ public interface MessageService {
     ChatsDto readMessage(Long messageId);
 
     ChatsDto deleteMessage(Long messageId);
+
+    ChatsDto readAndUpdateChat(Long chatId);
 }
