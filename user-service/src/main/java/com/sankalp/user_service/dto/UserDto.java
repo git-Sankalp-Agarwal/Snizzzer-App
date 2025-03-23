@@ -15,4 +15,5 @@ public class UserDto {
     private String email;
     private String username;
     private AccountType accountType;
+    private String imageUrl;
 }

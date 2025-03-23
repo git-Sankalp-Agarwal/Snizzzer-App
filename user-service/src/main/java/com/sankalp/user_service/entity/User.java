@@ -8,10 +8,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
+
 
 @Data
 @Entity
@@ -33,6 +31,8 @@ public class User {
     private String firstName;
 
     private String bio;
+
+    private String imageUrl;
 
     @Enumerated(EnumType.STRING)
     private AccountType accountType;

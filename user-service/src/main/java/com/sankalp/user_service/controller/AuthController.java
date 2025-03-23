@@ -1,7 +1,7 @@
 package com.sankalp.user_service.controller;
 
 
-import com.sankalp.user_service.advices.ApiResponse;
+
 import com.sankalp.user_service.dto.LoginRequestDto;
 import com.sankalp.user_service.dto.LoginResponseDto;
 import com.sankalp.user_service.dto.SignupRequestDto;
@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/auth")
@@ -41,5 +42,8 @@ public class AuthController {
         return authService.checkUserPrivacy(userId);
     }
 
-
+    @PostMapping("/uploadProfileImage")
+    public ResponseEntity<UserDto> uploadProfileImage(@RequestParam("image") MultipartFile file){
+        return ResponseEntity.status(HttpStatus.OK).body(authService.uploadUserProfileImage(file));
+    }
 }

@@ -5,6 +5,7 @@ import com.sankalp.user_service.advices.ApiResponse;
 import com.sankalp.user_service.auth.UserContextHolder;
 import com.sankalp.user_service.clients.FollowersClient;
 import com.sankalp.user_service.clients.MessageServiceClient;
+import com.sankalp.user_service.clients.UploadServiceClient;
 import com.sankalp.user_service.dto.*;
 import com.sankalp.user_service.entity.User;
 import com.sankalp.user_service.entity.enums.AccountType;
@@ -17,7 +18,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
 
@@ -31,6 +34,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final FollowersClient followersClient;
     private final MessageServiceClient messageServiceClient;
+    private final UploadServiceClient uploadServiceClient;
 
     @Transactional
     public UserDto signUp(SignupRequestDto signupRequestDto) {
@@ -117,5 +121,21 @@ public class AuthService {
                    .equals(AccountType.PRIVATE);
 
         //  return new ApiResponse<>(isPrivate);
+    }
+
+    public UserDto uploadUserProfileImage(MultipartFile file) {
+        Long userId = UserContextHolder.getCurrentUserId();
+
+        User user = userRepository.findById(userId)
+                                  .orElseThrow(() -> new RuntimeException("user not found"));
+
+        log.info("Uploading profile image for user :: {}", user);
+
+        String imageUrl = uploadServiceClient.uploadImage(file);
+        user.setImageUrl(imageUrl);
+
+        User savedUser = userRepository.save(user);
+
+        return modelMapper.map(savedUser, UserDto.class);
     }
 }
