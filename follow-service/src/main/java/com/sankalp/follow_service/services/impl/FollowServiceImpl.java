@@ -64,7 +64,7 @@ public class FollowServiceImpl implements FollowService {
         Long senderId = UserContextHolder.getCurrentUserId();
         ApiResponse<Boolean> checkIsPrivateAccount = usersClient.checkAccountPrivacy(receiverId);
 
-        if(checkIsPrivateAccount.getData()){
+        if (checkIsPrivateAccount.getData()) {
             sendFollowRequest(senderId, receiverId);
             return;
         }
@@ -105,22 +105,68 @@ public class FollowServiceImpl implements FollowService {
 
         boolean checkFollowRequestExist = personRepository.doesUserFollowRequestExists(senderId, receiverId);
 
-        if(checkFollowRequestExist){
+        if (checkFollowRequestExist) {
             throw new RuntimeException("Follow request already exist!!!! Do you want to cancel your request??");
         }
 
         personRepository.sendFollowRequest(senderId, receiverId);
 
         UserFollowRequestEvent userFollowRequestEvent = UserFollowRequestEvent.builder()
-                                                                    .senderId(senderId)
-                                                                    .senderName(senderName)
-                                                                    .receiverId(receiverId)
-                                                                    .build();
+                                                                              .senderId(senderId)
+                                                                              .senderName(senderName)
+                                                                              .receiverId(receiverId)
+                                                                              .build();
 
         log.info("Sending user send a follow request notification to followee: {}", userFollowRequestEvent);
 
-//        userFollowRequestEventTemplate.send("user-follow-request-topic", userFollowRequestEvent);
+        userFollowRequestEventTemplate.send("user-follow-request-topic", userFollowRequestEvent);
     }
+
+    @Override
+    public void acceptFollowRequest(Long followRequestSenderId) {
+
+        Long followRequestAcceptorId = UserContextHolder.getCurrentUserId();
+
+        String followRequestAcceptorName = UserContextHolder.getCurrentUserName();
+
+
+        boolean checkFollowRequestExist = personRepository.doesUserFollowRequestExists(followRequestSenderId, followRequestAcceptorId);
+
+        if (checkFollowRequestExist) {
+            throw new RuntimeException("There is now follow request from user");
+        }
+
+        personRepository.acceptFollowRequest(followRequestSenderId, followRequestAcceptorId);
+
+        UserFollowRequestEvent userFollowRequestEvent = UserFollowRequestEvent.builder()
+                                                                              .senderId(followRequestSenderId)
+                                                                              .senderName(followRequestAcceptorName)
+                                                                              .receiverId(followRequestAcceptorId)
+                                                                              .build();
+
+        log.info("Sending user Follow request accepted notification to follower: {}", userFollowRequestEvent);
+
+        userFollowRequestEventTemplate.send("user-follow-request-topic", userFollowRequestEvent);
+    }
+
+    @Override
+    public void rejectFollowRequest(Long followRequestSenderId) {
+
+        Long followRequestAcceptorId = UserContextHolder.getCurrentUserId();
+
+        String followRequestAcceptorName = UserContextHolder.getCurrentUserName();
+
+
+        boolean checkFollowRequestExist = personRepository.doesUserFollowRequestExists(followRequestSenderId, followRequestAcceptorId);
+
+        if (checkFollowRequestExist) {
+            throw new RuntimeException("There is now follow request from user");
+        }
+
+        personRepository.rejectFollowRequest(followRequestSenderId, followRequestAcceptorId);
+
+    }
+
 
     @Override
     public List<PersonDto> getMyFollowers() {
@@ -137,7 +183,7 @@ public class FollowServiceImpl implements FollowService {
 
         return personRepository.isUserFollowing(senderId, receiverId);
 
-     //   return new ApiResponse<>(checkIfUserIsFollower);
+        //   return new ApiResponse<>(checkIfUserIsFollower);
 
     }
 

@@ -20,4 +20,10 @@ public interface FollowService {
     List<PersonDto> getMyFollowers();
 
     boolean checkIfUserIsFollower(Long senderId, Long receiverId);
+
+    void acceptFollowRequest(Long followRequestSenderId);
+
+    void rejectFollowRequest(Long followRequestSenderId);
+
+
 }

@@ -45,6 +45,18 @@ public class FollowersController {
         followService.followPerson(receiverId);
     }
 
+    @RolesAllowed({"USER"})
+    @PostMapping("/acceptFollowRequest/{senderId}")
+    public void acceptFollowRequest(@PathVariable Long senderId){
+        followService.acceptFollowRequest(senderId);
+    }
+
+    @RolesAllowed({"USER"})
+    @PostMapping("/acceptFollowRequest/{senderId}")
+    public void rejectFollowRequest(@PathVariable Long senderId){
+        followService.rejectFollowRequest(senderId);
+    }
+
     @GetMapping("/getMyFollowers")
     public List<PersonDto> getMyFollowers(){
         return followService.getMyFollowers();
