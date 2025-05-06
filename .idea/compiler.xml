@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="uploader-service" />
+        <module name="config-server" />
         <module name="discovery-server" />
       </profile>
       <profile name="Annotation profile for user-service" enabled="true">
@@ -29,6 +30,7 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="api-gateway" options="-parameters" />
+      <module name="config-server" options="-parameters" />
       <module name="discovery-server" options="-parameters" />
       <module name="follow-service" options="-parameters" />
       <module name="message-service" options="-parameters" />
