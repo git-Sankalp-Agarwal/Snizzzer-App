@@ -23,7 +23,7 @@ Snizzer, a microblogging and social networking website, allows users to post sho
 
 **📡 API Gateway**: Unified entry point for all external API calls with route forwarding.
 
-**🔍 Service Discovery with Eureka:: Service registry for locating microservices dynamically.
+**🔍 Service Discovery with Eureka:: Service registry for locating microservices dynamically.**
 
 **⚙️ Centralized Configuration**: Centralized configuration management for all services.
 
