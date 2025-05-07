@@ -120,4 +120,5 @@ Configuration is loaded from a centralized Config Server (via Git or native file
 
 Inter-service calls use Feign Clients, leveraging Eureka for dynamic resolution.
 
+![image](https://github.com/user-attachments/assets/a2509d21-70b5-43e2-877c-06457ea8b35c)
 
