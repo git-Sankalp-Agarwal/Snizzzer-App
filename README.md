@@ -26,7 +26,8 @@ Snizzer, a microblogging and social networking website, allows users to post sho
 **📦 Docker & Kubernetes**: Containerized deployment and orchestration with horizontal scaling support.
 
 ## 🛠️ Tech Stack
-**📦 Core Technologies**
+### 📦 Core Technologies
+
 Java 17
 
 Spring Boot & Spring Cloud
@@ -35,7 +36,8 @@ Microservices Architecture
 
 JWT Authentication
 
-**🧩 Microservices Tools**
+### 🧩 Microservices Tools
+
 Feign Clients – Synchronous inter-service communication
 
 Apache Kafka – Asynchronous event-driven messaging
@@ -46,30 +48,32 @@ Spring Cloud Gateway – API routing and gateway management
 
 Spring Cloud Config Server – Centralized configuration for all services
 
-**🐳 DevOps & Infrastructure**
+### 🐳 DevOps & Infrastructure
+
 Docker – Containerization of all services
 
 Kubernetes – Container orchestration and scaling
 
-**📁 Additional Tools**
+### 📁 Additional Tools
+
 Lombok – Boilerplate code reduction
 
-MapStruct – DTO mapping
-
-Swagger / OpenAPI – API documentation and testing
+ModelMapper – DTO mapping
 
 
 ## 🔄 Workflow Overview
 Here’s a high-level interaction flow for core user actions within the system:
 
-**📌 1. User Registration & Login**
+### 📌 1. User Registration & Login
+
 User sends credentials to API Gateway, which routes the request to the User Service.
 
 Upon successful registration or login, a JWT token is generated and returned.
 
 All future requests include this token for authentication and authorization via Spring Security.
 
-**🐦 2. Post a Tweet**
+### 🐦 2. Post a Tweet
+
 Authenticated user sends a tweet request via API Gateway → forwarded to Tweet Service.
 
 Tweet Service saves the tweet and publishes a Kafka event.
@@ -78,33 +82,38 @@ Notification Service consumes the Kafka event and notifies followers.
 
 If an image is attached, Uploader Service handles the file upload before tweet persistence.
 
-**🔁 3. Retweet**
+### 🔁 3. Retweet
+
 Similar to posting a tweet, but the request includes the original tweet ID.
 
 A new retweet record is created in Tweet Service.
 
 A Kafka event is sent to Notification Service for follower updates.
 
-**➕ 4. Follow/Unfollow a User**
+### ➕ 4. Follow/Unfollow a User
+
 Request routed to Follow Service via Gateway.
 
 Follow relationships are saved, and a Kafka event is emitted.
 
 Notification Service informs the followed user asynchronously.
 
-**📨 5. Send a Direct Message**
+### 📨 5. Send a Direct Message
+
 Message is sent from User A to User B through Message Service.
 
 Messages are stored and indexed per user pair.
 
 Kafka may optionally be used for real-time delivery or analytics.
 
-**🖼️ 6. Upload Profile or Tweet Images**
+### 🖼️ 6. Upload Profile or Tweet Images
+
 Images are uploaded via Uploader Service using multipart form data.
 
 Uploader returns a file URL, which is attached to user profile or tweet metadata.
 
-**🧠 Service Discovery & Configuration**
+### 🧠 Service Discovery & Configuration
+
 All services register with Eureka Discovery Server on startup.
 
 Configuration is loaded from a centralized Config Server (via Git or native file storage).
