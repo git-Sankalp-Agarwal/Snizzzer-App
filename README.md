@@ -17,11 +17,15 @@ Snizzer, a microblogging and social networking website, allows users to post sho
 
 **🖼️ Uploader Service**: Upload profile pictures or tweet images, handled through an isolated file service.
 
+**🔄 Inter-Service Communication: Services communicate through Feign clients (synchronous) and Apache Kafka (asynchronous events).**
+
+**🔎 Distributed Tracing with Zipkin: End-to-end request tracing across all microservices to visualize latencies and troubleshoot performance bottlenecks.**
+
 **📡 API Gateway**: Unified entry point for all external API calls with route forwarding.
 
-**🔍 Discovery Server (Eureka)**: Service registry for locating microservices dynamically.
+**🔍 Service Discovery with Eureka:: Service registry for locating microservices dynamically.
 
-**⚙️ Config Server**: Centralized configuration management for all services.
+**⚙️ Centralized Configuration**: Centralized configuration management for all services.
 
 **📦 Docker & Kubernetes**: Containerized deployment and orchestration with horizontal scaling support.
 
